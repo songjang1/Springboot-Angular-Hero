@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-//@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/heroes")
 public class HeroController {
 
 	private List<Hero> heros = new ArrayList<>();	
 	
-	//private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	HeroController() {
 		buildHeros();
@@ -29,17 +29,20 @@ public class HeroController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public List<Hero> getHeros() {
+		logger.debug("목록조회");
 		return this.heros;
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public Hero getHero(@PathVariable("id") Long id) {
+		logger.debug("상세조회 : "+id);
 		return this.heros.stream().filter
 				(hero -> hero.getId() == id).findFirst().orElse(null);
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
 	public Hero saveHero(@RequestBody Hero hero) {
+		logger.debug("등록 전: "+hero);
 		Long nextId = 0L;
 		if (this.heros.size() != 0) {
 			Hero lastHero = this.heros.stream().skip(this.heros.size() - 1).findFirst().orElse(null);
@@ -48,21 +51,26 @@ public class HeroController {
 
 		hero.setId(nextId);
 		this.heros.add(hero);
+		logger.debug("등록 후: "+hero);
 		return hero;
 
 	}
 
 	@RequestMapping(method = RequestMethod.PUT)
-	public Hero updateHero(@RequestBody Hero hero) {		
+	public Hero updateHero(@RequestBody Hero hero) {
+		logger.debug("업데이트 전 : "+hero);
 		Hero modifiedHero = this.heros.stream().filter(u -> u.getId() == hero.getId()).findFirst().orElse(null);
 		modifiedHero.setName(hero.getName());
+		logger.debug("업데이트 후 : "+modifiedHero);
 		return modifiedHero;
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public boolean deleteHero(@PathVariable Long id) {
+		logger.debug("삭제 : " + id);
 		Hero deleteHero = this.heros.stream().filter(h -> h.getId() == id).findFirst().orElse(null);
 		if (deleteHero != null) {
+			logger.debug("삭제할 놈 : " + deleteHero);
 			this.heros.remove(deleteHero);
 			return true;
 		} else  {
@@ -75,12 +83,11 @@ public class HeroController {
 		return this.heros.stream()
 			.filter(hero -> hero.getName().contains(name))
 			.collect(Collectors.toList());
-		
 	}
 	
 	
 	void buildHeros() {
-		Hero hero1 = new Hero(11L,"김진영");
+		Hero hero1 = new Hero(11L,"진영이형 잘하긴 잘해");
 		Hero hero2 = new Hero(12L,"김민식");
 		Hero hero3 = new Hero(13L,"송장원");
 		Hero hero4 = new Hero(14L,"Celeritas");
